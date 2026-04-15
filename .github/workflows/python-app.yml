@@ -1,0 +1,34 @@
+name: Build & push image DockerHub
+on:
+  push:
+    branches: [ main ] ##UNCOMMENT THIS WHEN YOU WANT TO USE THE FILE
+
+jobs:
+  build-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        git clone https://github.com/vishal030308-star/hello.git
+        # cd your-repo
+        
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Generate version tag (timestamp)
+        id: tag
+        run: echo "value=$(date +'%Y-%m-%d-%H%M%S')" >> $GITHUB_OUTPUT
+        # VERSION=2025-12-11-143025
+        # Image name: 
+        # vishalshally/hello-world:latest
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/hello-world:${{ env.VERSION }} .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/hello-world:${{ env.VERSION }}
